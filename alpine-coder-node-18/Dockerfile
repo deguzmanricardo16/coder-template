@@ -3,12 +3,9 @@ ARG NODE_VERSION=18                     #example 18.16.0
 
 FROM node:${NODE_VERSION}-alpine
 
-COPY ./generate-dropbear-key.sh /usr/local/bin/
-
 # Install necessary packages
-RUN apk --no-cache add doas bash gcompat libstdc++ curl grep dropbear dropbear-scp dropbear-ssh git && \
-    npm install -g npm pnpm && \
-    chmod +x /usr/local/bin/generate-dropbear-key.sh
+RUN apk --no-cache add doas bash gcompat libstdc++ curl grep openssh git && \
+    npm install -g npm pnpm
 
 # Create a non-root user
 ARG USER=coder
