@@ -29,16 +29,21 @@ resource "coder_agent" "main" {
   startup_script         = <<-EOT
     set -e
 
-    # install and start code-server
-    curl -fsSL https://code-server.dev/install.sh | sh -s -- --method=standalone --prefix=/tmp/code-server
+    ## install and start code-server
+    # curl -fsSL https://code-server.dev/install.sh | sh -s -- --method=standalone --prefix=/tmp/code-server
+    
+    ## Get the code-server version
+    # CODE_SERVER_VERSION=$(basename $(ls -1 /tmp/code-server/lib/))
 
-    # Get the code-server version
-    CODE_SERVER_VERSION=$(basename $(ls -1 /tmp/code-server/lib/))
+    ## Edit the node execution line
+    # sed -i 's|exec "\$ROOT/lib/node" "\$ROOT" "\$@"|exec "node" "\$ROOT" "\$@"|' /tmp/code-server/lib/$CODE_SERVER_VERSION/bin/code-server
 
-    # Edit the node execution line
-    sed -i 's|exec "\$ROOT/lib/node" "\$ROOT" "\$@"|exec "node" "\$ROOT" "\$@"|' /tmp/code-server/lib/$CODE_SERVER_VERSION/bin/code-server
+    # If above not work use this
+    #curl -fsSL https://gist.github.com/deguzmanricardo16/c86b00e007d28f2132652a20a382b1e4/raw | sh
+    #sed -i 's|exec "\$ROOT/lib/node" "\$ROOT" "\$@"|exec "node" "\$ROOT" "\$@"|' /tmp/code-server/bin/code-server
 
-    /tmp/code-server/bin/code-server --auth none --port 13337 >/tmp/code-server.log 2>&1 &
+    #/tmp/code-server/bin/code-server --auth none --port 13337 >/tmp/code-server.log 2>&1 &
+    code-server --auth none --port 13337 >/tmp/code-server.log 2>&1 &
   EOT
 
   # These environment variables allow you to make Git commits right away after creating a
