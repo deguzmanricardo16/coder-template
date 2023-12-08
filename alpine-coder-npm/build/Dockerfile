@@ -1,4 +1,3 @@
-# Use a multi-stage build for a smaller image
 ARG NODE_VERSION=18                     #example 18.16.0 #node 18 highest supported version of code-server
 
 # Stage 1: Build stage
@@ -16,15 +15,14 @@ FROM node:${NODE_VERSION}-alpine
 COPY --from=build-stage /usr/local/lib/node_modules/code-server /usr/local/lib/node_modules/code-server
 
 # Install necessary packages
-# python3, build-base and krb5-dev are need for remote code-server to build using npm 
 RUN apk --no-cache add doas bash gcompat libstdc++ curl grep openssh git && \
-    npm add -g pnpm && \
+    corepack enable && corepack prepare pnpm@latest --activate && \
     ln -s /usr/local/lib/node_modules/code-server/out/node/entry.js /usr/local/bin/code-server
 
 # Create a non-root user
 ARG USER=coder
-RUN printf "\n\n" | adduser -g ${USER} ${USER} -H -s /bin/bash && addgroup ${USER} wheel \
-    && echo "permit setenv { PS1=$DOAS_PS1 SSH_AUTH_SOCK } :wheel" > /etc/doas.d/${USER}.conf
+RUN printf "\n\n" | adduser -g ${USER} ${USER} -H -s /bin/bash && addgroup ${USER} wheel && \
+    echo "permit setenv { PS1=$DOAS_PS1 SSH_AUTH_SOCK } :wheel" > /etc/doas.d/${USER}.conf
 
 USER ${USER}
 WORKDIR /home/${USER}
